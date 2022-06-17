@@ -1,0 +1,33 @@
+# to install ingress-nginx run
+# kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.2.0/deploy/static/provider/cloud/deploy.yaml
+# workaround for webhook error
+# kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-nginx
+  labels:
+    name: ingress-nginx
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/use-regex: "true"
+
+spec:
+  rules:
+    - host: localhost
+      http:
+        paths:
+          - pathType: Prefix
+            path: /api/users
+            backend:
+              service:
+                name: ticketing-auth-srv
+                port:
+                  number: 3000
+          - pathType: Prefix
+            path: /?(.*)
+            backend:
+              service:
+                name: ticketing-client-srv
+                port:
+                  number: 3000

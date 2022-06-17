@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ticketing-auth-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth
+  template:
+    metadata:
+      labels:
+        app: auth
+    spec:
+      containers:
+        - name: auth
+          image: hridooy/ticketing_auth
+          env:
+            - name: TICKETING_AUTH_JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ticketing
+                  key: JWT_KEY
+            - name: TICKETING_AUTH_DB_HOST
+              value: auth-mongo-srv
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "512m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ticketing-auth-srv
+spec:
+  selector:
+    app: auth
+  ports:
+    - port: 3000
+      targetPort: 3000
+      name: auth
+      protocol: TCP
